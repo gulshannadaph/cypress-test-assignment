@@ -1,16 +1,16 @@
 /// <reference types="cypress"/>
 describe("wave-trial login", () => {
   beforeEach(() => {
-    cy.visit("https://wave-trial.getbynder.com/login/");
+    cy.intercept("POST", "**/user/doLogin/").as("login");
+    cy.visit(Cypress.env('login_url'));
   });
 
   it("verifies login and logout functionality", () => {
-    cy.intercept("POST", "**/user/doLogin/").as("login");
     cy.get("#inputEmail")
-      .type("gul@mailinator.com")
+      .type(Cypress.env('valid_email'))
       .then(() => {
         cy.get("#inputPassword")
-          .type("Tester@123")
+          .type(Cypress.env('password'))
           .then(() => {
             cy.get(".login-btn")
               .click()
@@ -21,7 +21,7 @@ describe("wave-trial login", () => {
                   .then(() => {
                     cy.url().should(
                       "be.equal",
-                      "https://wave-trial.getbynder.com/account/dashboard/"
+                      Cypress.env('dashboard_url')
                     );
                     cy.title().should("eq", "Wave trial");
                   })
@@ -34,7 +34,7 @@ describe("wave-trial login", () => {
                           .then(() => {
                             cy.url().should(
                               "be.equal",
-                              "https://wave-trial.getbynder.com/login/"
+                              Cypress.env('login_url')
                             );
                             cy.title().should("eq", "Wave trial");
                           });
@@ -51,12 +51,11 @@ describe("wave-trial login", () => {
       "You have entered an incorrect username or password.",
     ];
     const regex = new RegExp(`${runout.join("|")}`, "g");
-    cy.intercept("POST", "**/user/doLogin/").as("login");
     cy.get("#inputEmail")
-      .type("gul1@mailinator.com")
+      .type(Cypress.env('invalid_email'))
       .then(() => {
         cy.get("#inputPassword")
-          .type("Tester@123")
+          .type(Cypress.env('password'))
           .then(() => {
             cy.get(".login-btn")
               .click()
